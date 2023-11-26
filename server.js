@@ -8,6 +8,7 @@ let cookieParser = require('cookie-parser')
 let openAI = require("openai")
 let dayjs = require('dayjs')
 let nodemailer = require('nodemailer')
+let fs = require('fs')
 
 dotenv.config({path: path.resolve(__dirname, './.env')})
 
@@ -43,6 +44,7 @@ app
     }))
 
 let mongoose = require('mongoose')
+mongoose.set('strictQuery', true)
 let uri = process.env.MONGODB_HOST
 mongoose.connect(uri).catch(error => {
     console.log('Произошла ошибка с подключением бд');
@@ -159,11 +161,11 @@ let VerifyUser = (req, res, next) => {
         return res.status(401).send('Вы не авторизованы')
     }
 
-    let newToken = cookToken.split(';')
-    let index = newToken.findIndex(elem => elem.includes('user-cookie='))
-    let token = newToken[index]
+    // let newToken = cookToken.split(';')
+    // let index = newToken.findIndex(elem => elem.includes('user-cookie='))
+    // let token = newToken[index]
 
-    jwt.verify(token.trim().replace(`${process.env.COOKIE_USER}=`, ''), process.env.TOKEN_USER, (error, decoded) => {
+    jwt.verify(cookToken.trim().replace(`${process.env.COOKIE_USER}=`, ''), process.env.TOKEN_USER, (error, decoded) => {
         if(error) {
             return res.status(401).send('Вы не авторизованы')
         }
@@ -290,10 +292,10 @@ app.post('/login', async (req,res) => {
     let token = jwt.sign({_id: checkExist._id}, process.env.TOKEN_USER)
     
     res.cookie(process.env.COOKIE_USER, token, {
+        maxAge: 24 * 3600 * 1000,
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'none',
-        secure: 'none'
+        secure: true,
+        sameSite: 'None'
     })
 
     res.status(200).send(token)
@@ -744,21 +746,54 @@ app.post('/transaction/accept', async(req,res) => {
 
 
 
-// app.post('/ask', VerifyUser, async(req,res) => {
-//     let {prompt} = req.body
+app.post('/support/ask', VerifyUser, async(req,res) => {
+    let {prompt} = req.body
 
-//     let response = await openai.chat.completions.create({
-//         "model": "gpt-3.5-turbo-0613",
-//         "message": [
-//             {"role": "assistant",
-//             "content": "\n\nThis is a test!"}
-//         ]
-//     })
+    if (!prompt) {
+        return res.status(422).send('Запрос был правильно сформирован, но не смог быть выполнен из-за переданных данных ошибок')
+    }
 
-//     console.log(response);
+    let user = await User.findOne({_id: req.userJWT})
 
-//     res.send(response.choices[0].message)
-// })
+    if(!user) {
+        return res.status(401).send('Вы не авторизованы')
+    }
+
+    await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+            { role: 'user', content: prompt },
+        ]
+        // max_tokens: 500,
+        // temperature: 0,
+        // top_p: 1.0,
+        // frequency_penalty: 0.0,
+        // presence_penalty: 0.0
+    }).then(async (response) => {
+        let message = new Message({
+            question: prompt,
+            answer: response.choices[0].message.content
+        })
+
+        await message.save()
+
+        user.messages.push(message._id)
+
+        await user.save()
+    })
+
+    res.status(200).send('Вопрос отправлен')
+})
+
+app.get('/support/messages', VerifyUser, async (req,res) => {
+    let user = await User.findOne({_id: req.userJWT}).populate({path: 'messages'})
+
+    if(!user) {
+        return res.status(401).send('Вы не авторизованы')
+    }
+
+    res.status(200).send({messages: user.messages})
+})
 
 app.post('/logout', async (req,res) => {
     res.clearCookie(process.env.COOKIE_USER)
