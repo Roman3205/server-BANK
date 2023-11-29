@@ -361,11 +361,8 @@ app.post('/card/create', VerifyUser, async (req,res) => {
         return res.status(409).send('Нельзя иметь больше 5-ти карт')
     }
 
-    if(date != user.carrierBirth) {
-        return res.status(409).send('Вы указали дату рождения, отличную от той, которую вы указывали при создании первой карты')
-    }
-
-    let card = new Card({
+    if(user.carrierBirth == "") {
+        let card = new Card({
         balance: 0,
         holdersName: name,
         holdersSurname: surname,
@@ -380,14 +377,14 @@ app.post('/card/create', VerifyUser, async (req,res) => {
     })
 
     await card.save()
-
     user.carrierBirth = date
-
     user.cards.push(card._id)
-
     await user.save()
-
-    res.sendStatus(200)
+        res.sendStatus(200)
+        
+    } else if(user.carrierBirth != "" && date != user.carrierBirth) {
+        res.status(409).send('Вы указали дату рождения, отличную от той, которую вы указывали при создании первой карты')
+    }
 })
 
 app.get('/card/get', VerifyUser, async (req,res) => {
