@@ -121,25 +121,6 @@ start()
 //     }
 // }
 
-// app.post('/user/fill', VerifyUser, async (req,res) => {
-//     let {lastName, patronymic} = req.body
-//     if (!lastName || !patronymic) {
-//         return res.status(422).send('Запрос был правильно сформирован, но не смог быть выполнен из-за переданных данных ошибок')
-//     }
-
-//     let user = await User.findOne({_id: req.userJWT})
-
-//     if(!user) {
-//         return res.status(401).send('Вы не авторизованы')
-//     }
-
-//     user.lastName = lastName
-//     user.patronymic = patronymic
-
-//     await user.save()
-
-//     res.sendStatus(200)
-// })
 
 // app.post('/card/create', VerifyUser, async (req,res) => {
 //     let {name, surname, patronymic, date, tel} = req.body
@@ -596,3 +577,9 @@ start()
 
 //     res.status(200).send({messages: user.messages})
 // })
+
+app.post('/logout', async (req,res) => {
+    res.clearCookie(process.env.COOKIE_USER)
+    
+    res.sendStatus(200)
+})

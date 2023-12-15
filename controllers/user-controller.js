@@ -47,7 +47,15 @@ class UserController {
 
     async fill(req,res,next) {
         try {
-            
+            let {lastName, patronymic} = req.body
+
+            if(!lastName || !patronymic) {
+                return next(ServerError.unProcessed())
+            }
+
+            await UserService.fill(req, lastName, patronymic)
+
+            return res.status(200).json({message: 'Данные заполнены'})
         } catch(error) {
             next(error)
         }
@@ -104,7 +112,7 @@ class UserController {
                 maxAge: 24 * 60 * 60 * 1000 * 5
             })
 
-            return res.status(200).json({message: 'Токен перезагружен'})
+            return res.status(200).json({message: 'Токен перезагружен', userData})
         } catch (error) {
             next(error)
             console.log(error);

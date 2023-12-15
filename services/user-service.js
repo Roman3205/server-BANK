@@ -48,6 +48,19 @@ class UserService {
         return true
     }
 
+    async fill(req, lastName, patronymic) {
+        let user = await User.findOne({_id: req.userJWT.id})
+
+        if(!user)  {
+            throw ServerError.Unauthorized()
+        }
+
+        user.lastName = lastName
+        user.patronymic = patronymic
+
+        return await user.save()
+    }
+
     async login(mail, password) {
         let user = await User.findOne({mail: mail})
         if(!user) {
@@ -82,6 +95,7 @@ class UserService {
         }
 
         activationLink.isActivated = true
+        activationLink.activationLink = null
 
         return activationLink.save()
     }

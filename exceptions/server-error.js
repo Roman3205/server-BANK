@@ -12,14 +12,6 @@ module.exports = class ServerError extends Error {
         return new ServerError(401, 'Пользователь не авторизован')
     }
 
-    static Created() {
-        return new ServerError(201, 'Создано')
-    }
-
-    static OK() {
-        return new ServerError(200, 'OK')
-    }
-
     static notFound() {
         return new ServerError(404, 'Не найдено')
     }
