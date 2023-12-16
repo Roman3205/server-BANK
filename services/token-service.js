@@ -8,7 +8,7 @@ const ServerError = require('../exceptions/server-error');
 class TokenService {
     generateTokens(payload) {
         let accessToken = jwt.sign(payload, process.env.JWT_ACCESS, {
-            expiresIn: '3m'
+            expiresIn: '30m'
         })
 
         let refreshToken = jwt.sign(payload, process.env.JWT_REFRESH, {
