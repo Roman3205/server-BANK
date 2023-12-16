@@ -2,18 +2,13 @@ let mongoose = require('mongoose')
 
 let transactionSchema = new mongoose.Schema({
     type: {
-        type: Number,
+        type: String,
         trim: true,
         required: true
     },
     money: {
         type: Number,
         min: 5,
-        required: true
-    },
-    status: {
-        type: Number,
-        trim: true,
         required: true
     },
     uniqueNumber: {
@@ -25,6 +20,7 @@ let transactionSchema = new mongoose.Schema({
     },
     sender: {
         type: mongoose.ObjectId,
+        required: true,
         ref: 'User'
     },
     senderCard: {
@@ -36,6 +32,7 @@ let transactionSchema = new mongoose.Schema({
     },
     reciever: {
         type: mongoose.ObjectId,
+        required: true,
         ref: 'User'
     },
     recieverCard: {
@@ -47,19 +44,17 @@ let transactionSchema = new mongoose.Schema({
     },
     pathNum: {
         type: String,
-        required: true,
-        trim: true,
-        minLength: 49,
-        maxLength: 49
+        default: null,
+        minLength: 50,
+        maxLength: 50
     },
     codeNum: {
         type: String,
-        required: true,
-        trim: true
+        default: null
     },
     payloadCode: {
         type: String,
-        required: true,
+        default: null,
         trim: true
     }
 }, {

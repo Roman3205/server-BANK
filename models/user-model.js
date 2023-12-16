@@ -9,14 +9,21 @@ let userSchema = new mongoose.Schema({
         trim: true
     },
     lastName: {
-        type: String
+        type: String,
+        default: '',
+        maxLength: 32,
+        trim: true
     },
     patronymic: {
-        type: String
+        type: String,
+        default: '',
+        maxLength: 32,
+        trim: true
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     mail: {
         type: String,
@@ -28,13 +35,13 @@ let userSchema = new mongoose.Schema({
     },
     activationLink: {
         type: String,
-        required: true,
+        default: null,
         unique: true,
         trim: true
     },
     isActivated: {
         type: Boolean,
-        required: true
+        default: false
     },
     cards: [{
         type: mongoose.ObjectId,
@@ -61,6 +68,7 @@ let userSchema = new mongoose.Schema({
     }],
     carrierBirth: {
         type: String,
+        default: ''
     }
 }, {
     timestamps: true

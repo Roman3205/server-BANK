@@ -47,13 +47,17 @@ class UserController {
 
     async fill(req,res,next) {
         try {
+            let errors = validationResult(req)
+            if(!errors.isEmpty) {
+                return next(ServerError.BadRequest('Ошибка валидации'), errors.array())
+            }
             let {lastName, patronymic} = req.body
 
             if(!lastName || !patronymic) {
                 return next(ServerError.unProcessed())
             }
 
-            await UserService.fill(req, lastName, patronymic)
+            await UserService.fill(req.userJWT.id, lastName, patronymic)
 
             return res.status(200).json({message: 'Данные заполнены'})
         } catch(error) {
@@ -63,23 +67,22 @@ class UserController {
 
     async main(req,res,next) {
         try {
-            let user = await UserService.getUser(req)
+            let user = await UserService.getUser(req.userJWT.id)
             
             return res.status(200).send(user)
         } catch(error) {
             next(error)
-            console.log(error);
         }
     }
 
     async activate(req,res,next) {
         try {
-            let {link} = req.query
+            let {link, mail} = req.query
             if(!link) {
                 return next(ServerError.unProcessed())
             }
 
-            await UserService.activate(link)
+            await UserService.activate(link, mail)
 
             return res.status(200).json({message: 'Почта подтверждена'})
         } catch(error) {
@@ -115,7 +118,6 @@ class UserController {
             return res.status(200).json({message: 'Токен перезагружен', userData})
         } catch (error) {
             next(error)
-            console.log(error);
         }
     }
 }

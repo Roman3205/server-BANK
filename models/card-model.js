@@ -41,7 +41,7 @@ let cardSchema = new mongoose.Schema({
     },
     CVV: {
         type: Number,
-        required: true,
+        default: null,
         max: 999,
         min: 100
     },

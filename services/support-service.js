@@ -4,8 +4,8 @@ const OpenAiService = require("./openai-service")
 let Message = require('../models/message-model')
 
 class SupportService {
-    async ask(req, prompt) {
-        let user = await User.findOne({_id: req.userJWT.id})
+    async ask(jwt, prompt) {
+        let user = await User.findOne({_id: jwt})
 
         if(!user) {
             throw ServerError.Unauthorized()
@@ -20,6 +20,19 @@ class SupportService {
 
         user.messages.push(message.id)
         return await user.save()
+    }
+
+    async messages(jwt) {
+        let user = await User.findOne({_id: jwt}).populate({
+            path: 'messages',
+            select: 'createdAt question answer'
+        })
+
+        if(!user) {
+            throw ServerError.Unauthorized()
+        }
+
+        return user.messages
     }
 }
 
