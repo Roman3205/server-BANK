@@ -34,10 +34,10 @@ class UserController {
             let data = await UserService.login(mail, password)
             
             res.cookie(process.env.COOKIE_USER, data.refreshToken, {
-                // secure: true,
+                secure: true,
                 maxAge: 60 * 60 * 24 * 5 * 1000,
                 httpOnly: true,
-                // sameSite: 'none',
+                sameSite: 'none',
             })
             return res.status(200).json({message: 'Вы успешно вошли в аккаунт', data})
         } catch(error) {
@@ -110,8 +110,8 @@ class UserController {
             
             res.cookie(process.env.COOKIE_USER, userData.refreshToken, {
                 httpOnly: true,
-                // secure: true,
-                // sameSite: 'none',
+                secure: true,
+                sameSite: 'none',
                 maxAge: 24 * 60 * 60 * 1000 * 5
             })
 
