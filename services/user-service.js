@@ -139,16 +139,12 @@ class UserService {
         return user
     }
 
-    async refresh(refreshToken) {
-        if(!refreshToken) {
-            throw ServerError.Unauthorized()
-        }
-        
+    async refresh(refreshToken) {        
         let userData = TokenService.validateRefreshToken(refreshToken)
         let tokenDB = await TokenService.findToken(refreshToken)
         
         if(!userData || !tokenDB) {
-            throw ServerError.BadRequest('Такого токена не существует')
+            throw ServerError.BadRequest('Такого токена не существует или его действие закончилось')
         }
 
         let user = await User.findById(userData.id)

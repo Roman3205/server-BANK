@@ -44,7 +44,7 @@ class MailService {
 
     async sendConfirmationCode(mail, number) {
         try {
-            await this.transporter.sendMail({
+            let info = await this.transporter.sendMail({
                 from: process.env.YANDEX_MAIL,
                 to: mail,
                 subject: 'МикроБанк',
@@ -54,14 +54,9 @@ class MailService {
                     <p>Если это сделали не вы, пожалуйста, проигнорируйте данное письмо.</p>
                     <span>Код подтверждения:</span> <strong><h3>${number}</h3></strong>
                 `
-            }, (error, info) => {
-                if(error) {
-                    throw ServerError.BadRequest('Произошла ошибка с отправкой кода')
-                }
-                if(info) {
-                    return true
-                }
             })
+                
+            return true
         } catch (error) {
             throw ServerError.BadRequest('Произошла ошибка с отправкой кода')
         }

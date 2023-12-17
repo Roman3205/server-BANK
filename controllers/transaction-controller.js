@@ -48,7 +48,6 @@ class TransactionController {
             return res.status(200).json({oplata: path})
         } catch (error) {
             next(error)
-            console.log(error);
         }
     }
 
@@ -79,8 +78,6 @@ class TransactionController {
             return res.status(200).json({data})
         } catch (error) {
             next(error)
-            console.log(error);
-
         }
     }
 }

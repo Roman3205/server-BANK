@@ -8,7 +8,7 @@ const ServerError = require('../exceptions/server-error');
 class TokenService {
     generateTokens(payload) {
         let accessToken = jwt.sign(payload, process.env.JWT_ACCESS, {
-            expiresIn: '30m'
+            expiresIn: '20m'
         })
 
         let refreshToken = jwt.sign(payload, process.env.JWT_REFRESH, {
@@ -32,7 +32,7 @@ class TokenService {
             let userData = jwt.verify(token, process.env.JWT_REFRESH)
             return userData
         } catch(error) {
-            return error
+            return null
         }
     }
 
@@ -76,6 +76,7 @@ class TokenService {
 
     async removeToken(refreshToken) {
         let token = await Token.deleteOne({refreshToken: refreshToken})
+
         return token
     }
 
@@ -89,11 +90,10 @@ class TokenService {
         if(tokenSaved) {
             tokenSaved.refreshToken = token
             return tokenSaved.save()
+        } else {
+            let refreshToken = await Token.create({user: id, refreshToken: token})
+            return refreshToken
         }
-
-        let refreshToken = await Token.create({user: id, refreshToken: token})
-
-        return refreshToken
     }
 
     signPayload(money, toCard, unique, redirectTo, routeTopUp) {

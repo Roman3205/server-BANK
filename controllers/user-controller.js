@@ -34,10 +34,10 @@ class UserController {
             let data = await UserService.login(mail, password)
             
             res.cookie(process.env.COOKIE_USER, data.refreshToken, {
-                secure: true,
-                maxAge: 60 * 60 * 24 * 5 * 1000,
                 httpOnly: true,
+                secure: true,
                 sameSite: 'none',
+                maxAge: 24 * 60 * 60 * 1000 * 5,
             })
             return res.status(200).json({message: 'Вы успешно вошли в аккаунт', data})
         } catch(error) {
@@ -96,7 +96,7 @@ class UserController {
 
             await UserService.logout(refreshToken)
 
-            res.clearCookie(process.env.COOKIE_USER)
+            res.clearCookie(process.env.COOKIE_USER, {sameSite: 'none', secure: true})
             return res.status(200).json({message: 'Вы вышли из аккаунта'})
         } catch(error) {
             next(error)
@@ -106,6 +106,11 @@ class UserController {
     async refresh(req,res,next) {
         try {
             let {refreshToken} = req.cookies
+
+            if(!refreshToken) {
+                throw ServerError.unProcessed()
+            }
+
             let userData = await UserService.refresh(refreshToken)
             
             res.cookie(process.env.COOKIE_USER, userData.refreshToken, {

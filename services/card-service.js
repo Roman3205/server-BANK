@@ -33,7 +33,6 @@ class CardService {
         
         if(user.carrierBirth == "") {
             user.carrierBirth = date
-            user.cards.push(card._id)
             await user.save()
         } else if(user.carrierBirth != "" && date != user.carrierBirth) {
             throw ServerError.BadRequest('Вы указали дату рождения, отличную от той, которую вы указывали при создании первой карты')

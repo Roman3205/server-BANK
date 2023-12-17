@@ -6,7 +6,7 @@ let messageSchema = new mongoose.Schema({
         required: true,
         trim: true,
         minLength: 1,
-        maxLength: 100
+        maxLength: 250
     },
     answer: {
         type: String,

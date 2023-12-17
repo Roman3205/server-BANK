@@ -18,7 +18,7 @@ app
     .use('/server', router)
     .use(errorMiddleware)
 
-mongoose.set('strictQuery', true)
+mongoose.set('strictQuery', false)
 
 let uri = process.env.MONGODB_HOST
 let backPort = process.env.VITE_BACKEND_PORT
@@ -26,7 +26,7 @@ let backHost = process.env.BACKEND_HOST
 
 let start = async () => {
     try {
-        mongoose.connect(uri)
+        mongoose.connect(uri).catch(error => console.log('Произошла ошибка с подключением бд'))
         app.listen(backPort, () => {
             console.log(backHost);
         })
